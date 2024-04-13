@@ -1,5 +1,8 @@
 python3
 
+on ubuntu22
+ source .env/bin/activate
+
  ps -lA | grep gunicorn
  
 cd /var/www/testpy/
