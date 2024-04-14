@@ -16,8 +16,9 @@ cd /var/www/testpy/
  python3 skale_cron.py
 
 debug
-/var/www/testpy/.env/bin/python3 skale_cron.py 
+sudo su
 crontab -e
+/var/www/testpy/.env/bin/python3 /var/www/testpy/skale_cron.py
 
  /var/log/syslog
 
