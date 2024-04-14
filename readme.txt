@@ -7,9 +7,22 @@ on ubuntu22
  
 cd /var/www/testpy/
  source .env/bin/activate
- gunicorn --bind=0.0.0.0:9000 g_app:app
+ bbb --bind=0.0.0.0:9000 g_app:app
   
   
+   
+cd /var/www/testpy/
+ source .env/bin/activate
+ python3 skale_cron.py
+
+debug
+/var/www/testpy/.env/bin/python3 skale_cron.py 
+crontab -e
+
+ /var/log/syslog
+
+
+
 
 
 flask --app g_app run

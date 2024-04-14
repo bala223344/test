@@ -4,11 +4,11 @@ import web3
 import time
 
 import mysql.connector
-  
+
 dataBase = mysql.connector.connect(
-  host ="localhost",
+  host ="127.0.0.1",
   user ="root",
-  passwd ="password",
+  passwd ="hhz3Gq5jGNJcYs",
   database = "skale"
 
 )
@@ -16,28 +16,27 @@ dataBase = mysql.connector.connect(
 cursorObject = dataBase.cursor()
 
 
-print(dataBase)
-  
+
 def update_block(block,ts) :
-    query = "UPDATE `block` SET `ts` = '{ts}', no='{block}' WHERE `block`.`id` = 1"
-    cursorObject.execute(query)
+
+    cursorObject.execute("UPDATE `block` SET `ts` = %s, no=%s WHERE `block`.`id` = 1;", (ts, block))
     dataBase.commit()
 
 def get_db_block() : 
     cursorObject.execute("SELECT no FROM block")
     result = cursorObject.fetchone()
-    return result ['no']
+    return result[0]
 
 
-def insert_mint(address,token_id,  block,ts) : 
-    cursorObject.execute("INSERT INTO `mint_logs` (`address`, `token_id`,  `block`, `ts`) VALUES ('{address}', '{token_id}', '{block}', '{ts}');")
+def insert_mint(address,token_id,  block,ts) :
+    cursorObject.execute("INSERT INTO `mint_logs` (`address`, `token_id`,  `block`, `ts`) VALUES (%s, %s, %s, %s);", ((address), token_id,  block, ts))
     return
     
 
 def conexec() :
     w3_instance = Web3(Web3.HTTPProvider('https://mainnet.skalenodes.com/v1/green-giddy-denebola'))
 
-    onchain_block = w3_instance.eth.get_block('latest')
+    onchain_block = w3_instance.eth.block_number
 
     start_block = get_db_block()
     end_block = start_block + 999
@@ -63,9 +62,9 @@ def conexec() :
     ts = 0
 
     print ('--length')
-    print (length(logs))
+    print (len(logs))
     #no tx found..
-    if length(logs) == 0: 
+    if len(logs) == 0:
         update_block(onchain_block, time.time())
         return
 
@@ -73,7 +72,9 @@ def conexec() :
         #print (tx)
         #print (tx['blockNumber'])
         token_id =  Web3.to_int(tx['topics'][3])
-        address = Web3.to_hex(tx['topics'][2])
+        hexstr = Web3.to_hex(tx['topics'][2])[26:66]
+        print (hexstr)
+        address = Web3.to_hex(hexstr=hexstr)
         #skip everything
         if (prev_block == tx['blockNumber']):
             pass
@@ -84,29 +85,9 @@ def conexec() :
             update_block(prev_block, ts)
         
         insert_mint(address, token_id, prev_block, ts)
-        print ("---")
+        print (token_id)
+
     
 
-       # print ("wwwferer")
-        # raw_log_data = event["data"]
-
-        # decoded_data = decode_data(raw_log_data)
-
-        # strength = decoded_data.get("strength")
-        # unique_burns = decoded_data.get("uniqueBurns")
-        # tx_hash = event["transactionHash"].hex()
-
-        # tx = w3_instance.eth.get_transaction(tx_hash)
-        # sender = tx["from"].lower()
-
-        # print("sender ==> ", sender)
-        # print("strength ==> ", strength)
-        # print("unique_burns ==> ", unique_burns)
-        # print("tx_hash ===>", tx_hash)
-        # print("block_height ===>", event["blockNumber"])
-
-        # timestamp = w3_instance.eth.get_block(event["blockNumber"]).timestamp
-        # block_signed_at = datetime.datetime.utcfromtimestamp(timestamp)
-        # print("block_signed_at ===>", block_signed_at)
 
 conexec()
