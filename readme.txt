@@ -10,6 +10,8 @@ cd /var/www/testpy/
  bbb --bind=0.0.0.0:9000 g_app:app
   
   
+
+no local testin..testing on live  
    
 cd /var/www/testpy/
  source .env/bin/activate
